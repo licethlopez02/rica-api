@@ -1,4 +1,4 @@
-package com.rica.rica_api;
+package com.rica.rica_api.publicaciones;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

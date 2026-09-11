@@ -1,5 +1,6 @@
-package com.rica.rica_api;
+package com.rica.rica_api.investigadores;
 
+import com.rica.rica_api.compartido.RecursoNoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
