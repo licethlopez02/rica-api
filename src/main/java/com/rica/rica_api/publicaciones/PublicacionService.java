@@ -1,6 +1,8 @@
 package com.rica.rica_api.publicaciones;
 
+import com.rica.rica_api.compartido.LimiteAnualExcedidoException;
 import com.rica.rica_api.compartido.RecursoNoEncontradoException;
+import com.rica.rica_api.investigadores.Investigador;
 import com.rica.rica_api.investigadores.InvestigadorRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,18 +12,28 @@ import java.util.List;
 public class PublicacionService {
     private final PublicacionRepository publicacionRepository;
     private final InvestigadorRepository investigadorRepository;
+    private final LimitePublicacionesAnualesService limitePublicacionesAnualesService;
 
     public PublicacionService(PublicacionRepository publicacionRepository,
-                              InvestigadorRepository investigadorRepository) {
+                              InvestigadorRepository investigadorRepository,
+                              LimitePublicacionesAnualesService limitePublicacionesAnualesService)
+    {
         this.publicacionRepository = publicacionRepository;
         this.investigadorRepository = investigadorRepository;
+        this.limitePublicacionesAnualesService = limitePublicacionesAnualesService;
     }
 
     public Publicacion registrar(Publicacion publicacion) {
-        if (!investigadorRepository.existsByCorreoInstitucional(publicacion.getInvestigadorCorreo())) {
-            throw new RecursoNoEncontradoException(
-                    "No existe un investigador con correo " + publicacion.getInvestigadorCorreo());
+        Investigador investigador = investigadorRepository
+            .findByCorreoInstitucional_Valor(publicacion.getInvestigadorCorreo())
+            .orElseThrow(() -> new RecursoNoEncontradoException(
+                "No existe un investigador con correo " + publicacion.getInvestigadorCorreo()));
+
+        if (!limitePublicacionesAnualesService.puedeRegistrar(investigador, publicacion)) {
+            throw new LimiteAnualExcedidoException(
+                    "El investigador ha superado el límite máximo de publicaciones para el año " + publicacion.getAnio());
         }
+
         return publicacionRepository.save(publicacion);
     }
 

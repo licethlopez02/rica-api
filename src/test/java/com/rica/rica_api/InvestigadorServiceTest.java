@@ -1,10 +1,7 @@
 package com.rica.rica_api;
 
 import com.rica.rica_api.compartido.RecursoNoEncontradoException;
-import com.rica.rica_api.investigadores.CorreoDuplicadoException;
-import com.rica.rica_api.investigadores.Investigador;
-import com.rica.rica_api.investigadores.InvestigadorRepository;
-import com.rica.rica_api.investigadores.InvestigadorService;
+import com.rica.rica_api.investigadores.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,12 +21,15 @@ public class InvestigadorServiceTest {
     @Mock
     private InvestigadorRepository investigadorRepository;
 
+    @Mock
+    private InvestigadorFactory investigadorFactory;
+
     @InjectMocks
     private InvestigadorService investigadorService;
 
     @Test
     void buscarPorIdDevuelveElInvestigadorCuandoExiste() {
-        Investigador investigador = new Investigador(1L, "Ana Torres", "ana.torres@uptc.edu.co", "GIT-UPTC");
+        Investigador investigador = new Investigador(1L, "Ana Torres", new CorreoInstitucional("ana.torres@uptc.edu.co"), "GIT-UPTC");
         when(investigadorRepository.findById(1L)).thenReturn(Optional.of(investigador));
 
         Investigador resultado = investigadorService.buscarPorId(1L);
@@ -48,13 +48,14 @@ public class InvestigadorServiceTest {
 
     @Test
     void registrarRechazaCorreoInstitucionalDuplicado() {
-        Investigador nuevo = new Investigador(null, "Carlos Ruiz", "carlos.ruiz@uptc.edu.co", "GIT-UPTC");
-        when(investigadorRepository.existsByCorreoInstitucional("carlos.ruiz@uptc.edu.co")).thenReturn(true);
+        when(investigadorFactory.crear("Carlos Ruiz", "carlos.ruiz@uptc.edu.co", "GIT-UPTC"))
+            .thenThrow(new CorreoDuplicadoException("Ya existe un investigador registrado"));
 
-        assertThatThrownBy(() -> investigadorService.registrar(nuevo))
+        assertThatThrownBy(() -> investigadorService.registrar(
+            "Carlos Ruiz", "carlos.ruiz@uptc.edu.co", "GIT-UPTC"))
                 .isInstanceOf(CorreoDuplicadoException.class);
 
-        verify(investigadorRepository).existsByCorreoInstitucional("carlos.ruiz@uptc.edu.co");
+        verify(investigadorFactory).crear("Carlos Ruiz", "carlos.ruiz@uptc.edu.co", "GIT-UPTC");
     }
 
 
