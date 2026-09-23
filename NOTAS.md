@@ -54,3 +54,21 @@ Esto va en línea con la regla de agregados pequeños: un agregado debe ser pequ
 - Las publicaciones se gestionan como un concepto independiente, con su propio ciclo de cambios.
 - Se reduce el riesgo de transacciones gigantes y de contención innecesaria.
 - La evolución del dominio queda más clara: el investigador y sus publicaciones pueden cambiar por caminos distintos sin acoplarse artificialmente.
+
+## Auditoría de puertos y adaptadores existentes
+
+### `InvestigadorRepository`
+
+Es un **puerto secundario**: aunque está definido como una interfaz, la llamada la inicia el núcleo (`InvestigadorService`) cuando necesita consultar o guardar datos, y la implementación concreta pertenece a un componente externo de persistencia.
+
+### `InvestigadorController`
+
+Es un **adaptador primario** porque recibe las peticiones que inician los actores externos y las dirige hacia la aplicación. Envuelve la tecnología concreta de **Spring MVC/HTTP**, mediante anotaciones como `@RestController`, `@RequestMapping`, `@GetMapping` y `@PostMapping`.
+
+### `InvestigadorService`
+
+Hoy el controlador depende directamente de esta clase concreta. Para que exista un puerto primario explícito falta una **interfaz de entrada de la aplicación** (por ejemplo, un puerto de caso de uso) que defina las operaciones que el controlador puede solicitar; `InvestigadorService` debería implementar ese puerto.
+
+### `InvestigadorFactory`
+
+Tal como está implementada, no pertenece al núcleo limpio: pertenece a una pieza acoplada al exterior, cercana a un **adaptador de infraestructura**, porque importa `org.springframework.stereotype.Component` y depende directamente de `InvestigadorRepository`. Aunque su responsabilidad sea crear un `Investigador`, esas dependencias externas impiden clasificarla hoy como parte pura del núcleo.

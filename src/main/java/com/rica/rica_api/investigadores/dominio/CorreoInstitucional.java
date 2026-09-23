@@ -1,4 +1,4 @@
-package com.rica.rica_api.investigadores;
+package com.rica.rica_api.investigadores.dominio;
 
 import jakarta.persistence.Embeddable;
 

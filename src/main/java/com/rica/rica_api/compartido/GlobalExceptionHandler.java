@@ -1,6 +1,6 @@
 package com.rica.rica_api.compartido;
 
-import com.rica.rica_api.investigadores.CorreoDuplicadoException;
+import com.rica.rica_api.investigadores.dominio.CorreoDuplicadoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

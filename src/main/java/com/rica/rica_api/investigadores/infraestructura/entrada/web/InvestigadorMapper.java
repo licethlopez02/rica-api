@@ -1,4 +1,6 @@
-package com.rica.rica_api.investigadores;
+package com.rica.rica_api.investigadores.infraestructura.entrada.web;
+
+import com.rica.rica_api.investigadores.dominio.Investigador;
 
 public class InvestigadorMapper {
 
